@@ -1,12 +1,22 @@
 # SOP
-
 # SOP: Enhanced Conversions para GoHighLevel Forms & Surveys
 
 ## 📋 **Resumen Ejecutivo**
 
 Este procedimiento permite implementar tracking de enhanced conversions para formularios y encuestas de GoHighLevel, capturando datos de usuarios (email, teléfono) para enviar de vuelta a Google Ads, Facebook Ads y GA4.
 
----
+## 📊 **Resumen de Configuración Final**
+
+### **1 Event Listener** (Custom HTML)
+### **6 Variables** (Data Layer Variables + 1 UPD)
+### **2 Triggers** (hl_form_submit, hl_survey_submit)  
+### **4 Tags principales**:
+- Google Ads UPD Event
+- Google Ads Conversion (con tag sequencing)
+- GA4 Lead Event  
+- Meta Lead Event
+
+**Total**: 13 elementos en GTM
 
 ## 🎯 **Alcance**
 - **Aplica para**: Formularios y encuestas de GoHighLevel embebidos como iframes
@@ -121,79 +131,60 @@ Crear las siguientes variables tipo **Data Layer Variable**:
 1. **Tags** → **New**
 2. **Tag Configuration**:
    - **Tag Type**: Google Ads - User-Provided Data Event
-   - **Conversion ID**: `AW-XXXXXXXXX` (del cliente)
+   - **Conversion ID**: `AW-XXXXXXXXX` (insertar Conversion ID del cliente)
    - **User-data variable**: `{{UPD - Email & Phone}}`
 3. **Triggering**: 
-   - `GHL - Form Submit`
-   - `GHL - Survey Submit`
+   - Para formularios: `GHL - Form Submit`
+   - Para encuestas: `GHL - Survey Submit`
 4. **Tag Name**: "Google Ads - UPD Event"
 5. **Guardar**
 
-#### 5.2 Google Ads - Conversion (Formularios)
+#### 5.2 Google Ads - Conversion
 1. **Tags** → **New**
 2. **Tag Configuration**:
    - **Tag Type**: Google Ads - Conversion
    - **Conversion ID**: `AW-XXXXXXXXX`
-   - **Conversion Label**: `LABEL_FORMULARIOS`
+   - **Conversion Label**: `CONVERSION_LABEL` (del cliente)
    - **Transaction ID**: `{{DLV - transaction_id}}`
-3. **Triggering**: `GHL - Form Submit`
+3. **Triggering**: 
+   - Para formularios: `GHL - Form Submit`
+   - Para encuestas: `GHL - Survey Submit`
 4. **Advanced Settings** → **Tag Sequencing**:
-   - **Fire a tag before**: ❌
-   - **Fire a tag after**: ✅ → Seleccionar "Google Ads - UPD Event"
-5. **Tag Name**: "Google Ads - Form Conversion"
+   - **Fire a tag after this tag fires**: ❌
+   - **Setup tag**: ✅ → Wait for tags: "Google Ads - UPD Event"
+5. **Tag Name**: "Google Ads - Conversion"
 6. **Guardar**
 
-#### 5.3 Google Ads - Conversion (Encuestas)
+#### 5.3 GA4 - Event
 1. **Tags** → **New**
-2. **Tag Configuration**:
-   - **Tag Type**: Google Ads - Conversion
-   - **Conversion ID**: `AW-XXXXXXXXX`
-   - **Conversion Label**: `LABEL_ENCUESTAS`
-   - **Transaction ID**: `{{DLV - transaction_id}}`
-3. **Triggering**: `GHL - Survey Submit`
-4. **Advanced Settings** → **Tag Sequencing**: (igual que formularios)
-5. **Tag Name**: "Google Ads - Survey Conversion"
-6. **Guardar**
-
-#### 5.4 Facebook Pixel - Lead Event (Formularios)
-1. **Tags** → **New**
-2. **Tag Configuration**:
-   - **Tag Type**: Custom HTML
-   - **HTML**:
-   ```html
-   <script>
-   fbq('track', 'Lead', {
-     content_name: 'Form Submission',
-     content_category: 'Lead Generation'
-   });
-   console.log('Facebook Lead event fired - Form');
-   </script>
-   ```
-3. **Triggering**: `GHL - Form Submit`
-4. **Tag Name**: "Facebook - Lead Event (Forms)"
-5. **Guardar**
-
-#### 5.5 Facebook Pixel - Lead Event (Encuestas)
-1. Repetir proceso anterior
-2. Cambiar `content_name: 'Survey Submission'`
-3. **Triggering**: `GHL - Survey Submit`
-4. **Tag Name**: "Facebook - Lead Event (Surveys)"
-
-#### 5.6 GA4 - Events
-1. **Tags** → **New** (para formularios)
 2. **Tag Configuration**:
    - **Tag Type**: Google Analytics: GA4 Event
    - **Configuration Tag**: [Tu GA4 Config Tag]
    - **Event Name**: `generate_lead`
    - **Event Parameters**:
-     - `method`: `form_submission`
      - `transaction_id`: `{{DLV - transaction_id}}`
      - `form_id`: `{{DLV - form_id}}`
-3. **Triggering**: `GHL - Form Submit`
-4. **Tag Name**: "GA4 - Lead Event (Forms)"
+     - `method`: `form_submission` (para forms) o `survey_submission` (para surveys)
+3. **Triggering**: 
+   - Para formularios: `GHL - Form Submit`
+   - Para encuestas: `GHL - Survey Submit`
+4. **Tag Name**: "GA4 - Lead Event"
 5. **Guardar**
 
-Repetir para encuestas con `method`: `survey_submission`
+#### 5.4 Meta Pixel - Lead Event
+1. **Tags** → **New**
+2. **Tag Configuration**:
+   - **Tag Type**: Meta Pixel
+   - **Pixel ID**: `XXXXXXXXXXXXXXX` (Pixel ID del cliente)
+   - **Event**: Lead
+   - **Event Parameters** (opcional):
+     - `content_name`: `Form Lead` o `Survey Lead`
+     - `content_category`: `Lead Generation`
+3. **Triggering**: 
+   - Para formularios: `GHL - Form Submit`
+   - Para encuestas: `GHL - Survey Submit`
+4. **Tag Name**: "Meta - Lead Event"
+5. **Guardar**
 
 ---
 
@@ -213,12 +204,6 @@ Repetir para encuestas con `method`: `survey_submission`
    - Se ejecutan tags correspondientes
    - Variables DLV están pobladas
 
-#### 6.3 Verificar en consola del navegador
-```
-📋 GoHighLevel Forms & Surveys Tracking Script loaded
-📨 Message received: {origin: "...", data: "..."}
-✅ Message from allowed origin
-🔥 hl_form_submit pushed to dataLayer!
 ```
 
 #### 6.4 GA4 DebugView
@@ -238,10 +223,14 @@ Repetir para encuestas con `method`: `survey_submission`
 
 ### **Pre-launch:**
 - [ ] Event Listener instalado y funcional
-- [ ] Todas las variables creadas correctamente
-- [ ] Triggers configurados para ambos tipos
-- [ ] Tags de conversión configuradas
-- [ ] UPD variable mapeada correctamente
+- [ ] Variables DLV creadas (6 variables)
+- [ ] Variable UPD configurada correctamente
+- [ ] Triggers creados (hl_form_submit y hl_survey_submit)
+- [ ] 4 Tags principales configuradas:
+  - [ ] Google Ads UPD Event
+  - [ ] Google Ads Conversion (con tag sequencing)
+  - [ ] GA4 Lead Event
+  - [ ] Meta Lead Event
 - [ ] Testing completo realizado
 
 ### **Post-launch:**
@@ -451,5 +440,5 @@ Para dudas técnicas o problemas durante la implementación:
 ---
 
 **Versión**: 1.0  
-**Última actualización**: Agosto 2025
+**Última actualización**: Agosto 2025  
 **Autor**: Gabriel Ferrés
