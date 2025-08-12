@@ -204,85 +204,9 @@ Crear las siguientes variables tipo **Data Layer Variable**:
    - Se ejecutan tags correspondientes
    - Variables DLV están pobladas
 
-```
 
-#### 6.4 GA4 DebugView
-1. **Ir a GA4** → **Configure** → **DebugView**
-2. **Verificar eventos**:
-   - `generate_lead` aparece
-   - Parámetros correctos (`transaction_id`, `form_id`, etc.)
+Script "Event Listener
 
-#### 6.5 Verificar Enhanced Conversions
-1. **En GTM Preview**, verificar tag "Google Ads - UPD Event"
-2. **Buscar parámetro `em=`** que empiece con `tv.1~em.`
-3. **Confirmar hash del email** (caracteres aleatorios después)
-
----
-
-## ✅ **Checklist de Finalización**
-
-### **Pre-launch:**
-- [ ] Event Listener instalado y funcional
-- [ ] Variables DLV creadas (6 variables)
-- [ ] Variable UPD configurada correctamente
-- [ ] Triggers creados (hl_form_submit y hl_survey_submit)
-- [ ] 4 Tags principales configuradas:
-  - [ ] Google Ads UPD Event
-  - [ ] Google Ads Conversion (con tag sequencing)
-  - [ ] GA4 Lead Event
-  - [ ] Meta Lead Event
-- [ ] Testing completo realizado
-
-### **Post-launch:**
-- [ ] Monitorear eventos en GTM durante primeras 24h
-- [ ] Verificar conversiones llegando a Google Ads
-- [ ] Confirmar eventos en GA4
-- [ ] Verificar eventos de Facebook en Events Manager
-
-### **Documentación:**
-- [ ] Documentar configuración específica del cliente
-- [ ] Entregar credenciales y accesos usados
-- [ ] Programar revisión en 1 semana
-
----
-
-## 🚨 **Troubleshooting Común**
-
-### **Problema: No se disparan eventos**
-**Síntomas**: No aparece evento en GTM Preview
-**Solución**:
-1. Verificar que el dominio esté en lista ALLOWED
-2. Revisar consola por errores JavaScript
-3. Confirmar que iframe es de GoHighLevel
-
-### **Problema: Eventos se disparan pero sin datos**
-**Síntomas**: Evento aparece pero variables DLV vacías
-**Solución**:
-1. Verificar extracción de datos en consola
-2. Revisar nombres de campos en mensaje original
-3. Ajustar lógica de extracción si es necesario
-
-### **Problema: Enhanced Conversions no funcionan**
-**Síntomas**: Conversiones llegan pero sin enhanced data
-**Solución**:
-1. Verificar variable UPD configurada correctamente
-2. Confirmar secuencia de tags (UPD antes que Conversion)
-3. Revisar formato de email/teléfono
-
-### **Problema: Facebook events no aparecen**
-**Síntomas**: No se ven eventos en Facebook Events Manager
-**Solución**:
-1. Verificar Facebook Pixel instalado correctamente
-2. Confirmar que Custom HTML tags se ejecutan
-3. Revisar Facebook Events Manager con delay de 20 minutos
-
----
-
-## 📝 **Anexos**
-
-### **Anexo A: Código JavaScript del Event Listener**
-
-```javascript
 <script>
 console.log('📋 GoHighLevel Forms & Surveys Tracking Script loaded - Unified Version');
 (function () {
@@ -409,33 +333,6 @@ console.log('📋 GoHighLevel Forms & Surveys Tracking Script loaded - Unified V
 </script>
 ```
 
-### **Anexo B: Eventos Trackeable**
-
-| Evento | Descripción | Data Layer Event |
-|---|---|---|
-| Form Submit | Usuario envía formulario | `hl_form_submit` |
-| Survey Submit | Usuario completa encuesta | `hl_survey_submit` |
-
-### **Anexo C: Variables Disponibles**
-
-| Variable | Descripción | Ejemplo |
-|---|---|---|
-| transaction_id | ID único de transacción | `1B9Ga5JoNwxZBev_6Pkc` |
-| user_email | Email del usuario | `user@example.com` |
-| user_phone | Teléfono del usuario | `+56912345678` |
-| form_id | ID del formulario/encuesta | `1B9Ga5JoNwxZBev_6Pkc` |
-| appointment_date | Fecha de cita (si aplica) | `2025-05-09` |
-| location_id | ID de ubicación GHL | `abc123def456` |
-
----
-
-## 📞 **Soporte y Escalación**
-
-Para dudas técnicas o problemas durante la implementación:
-1. **Revisar troubleshooting** en este SOP
-2. **Verificar logs** en consola del navegador
-3. **Documentar** configuración específica y errores
-4. **Escalar** con detalles técnicos completos
 
 ---
 
